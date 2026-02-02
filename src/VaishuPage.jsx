@@ -65,7 +65,7 @@ const VaishuPage = () => {
 
             {showCarousel && (
                 <div className={`carousel-scene ${showCarousel ? 'visible' : ''}`}>
-                    <h1 className="valentine-title">Happy Valentine's Day Bestie! 💖</h1>
+                    <h1 className="valentine-title">MISS YOU 💖</h1>
 
                     <div className="carousel">
                         {photos.map((src, index) => (
