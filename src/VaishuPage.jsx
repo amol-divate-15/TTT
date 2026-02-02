@@ -110,7 +110,7 @@ const VaishuPage = () => {
                     }}>
                         {stage === 'carousel' && (
                             <>
-                                <h1 className="valentine-title">MISS YOU 💖</h1>
+                                <h1 className="valentine-title">MISS YOU 💖, Sorry For evrything</h1>
                                 <div className="carousel">
                                     {photos.map((src, index) => (
                                         <div
