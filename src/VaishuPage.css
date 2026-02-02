@@ -10,8 +10,8 @@
     overflow: hidden;
     position: relative;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-    perspective: 1000px;
-    /* Essential for 3D */
+    perspective: 1200px;
+    /* Better perspective for box */
 }
 
 /* ... (Keep bg-hearts and heart animations SAME as before) ... */
@@ -49,7 +49,7 @@
     }
 }
 
-/* Magic Button (Keep SAME) */
+/* Magic Button */
 .magic-button {
     padding: 20px 40px;
     font-size: 1.5rem;
@@ -85,49 +85,221 @@
     }
 }
 
-/* 3D CAROUSEL STYLES */
-
-.carousel-scene {
+/* GIFT BOX SCENE */
+.scene-container {
     position: relative;
     width: 200px;
-    /* Width of one card */
-    height: 300px;
-    /* Height of one card */
+    height: 200px;
     transform-style: preserve-3d;
-    transition: opacity 1s;
-    opacity: 0;
     z-index: 20;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-.carousel-scene.visible {
-    opacity: 1;
+.gift-box {
+    position: relative;
+    width: 100px;
+    height: 100px;
+    transform-style: preserve-3d;
+    transform: rotateX(-20deg) rotateY(45deg);
+    /* Initial box pose */
+    transition: transform 1s ease;
+    animation: boxFloat 3s ease-in-out infinite;
+}
+
+@keyframes boxFloat {
+
+    0%,
+    100% {
+        transform: rotateX(-20deg) rotateY(45deg) translateY(0);
+    }
+
+    50% {
+        transform: rotateX(-20deg) rotateY(45deg) translateY(-20px);
+    }
+}
+
+/* Box Faces */
+.box-face {
+    position: absolute;
+    width: 100px;
+    height: 100px;
+    background: #e63946;
+    border: 2px solid #fff;
+    box-sizing: border-box;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.box-face::before,
+.box-face::after {
+    content: '';
+    position: absolute;
+    background: gold;
+}
+
+.box-face::before {
+    width: 20px;
+    height: 100%;
+}
+
+.box-face::after {
+    width: 100%;
+    height: 20px;
+}
+
+.face-front {
+    transform: translateZ(50px);
+}
+
+.face-back {
+    transform: rotateY(180deg) translateZ(50px);
+}
+
+.face-right {
+    transform: rotateY(90deg) translateZ(50px);
+}
+
+.face-left {
+    transform: rotateY(-90deg) translateZ(50px);
+}
+
+.face-bottom {
+    transform: rotateX(-90deg) translateZ(50px);
+}
+
+/* Box Lid */
+.box-lid {
+    position: absolute;
+    width: 110px;
+    height: 110px;
+    background: #d62828;
+    top: -5px;
+    left: -5px;
+    transform-style: preserve-3d;
+    transform-origin: top;
+    /* Hinge from back top */
+    transform: rotateX(90deg) translateZ(-50px);
+    /* Initial position covering the top */
+    transition: transform 1s ease-in-out;
+}
+
+.box-lid.open {
+    transform: rotateX(90deg) translateZ(-50px) rotateX(-120deg);
+    /* Open back */
+}
+
+/* Lid Faces */
+.lid-top {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: #d62828;
+    border: 2px solid white;
+    transform: translateZ(15px);
+    /* Thickness of lid */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.lid-top::before {
+    content: '';
+    position: absolute;
+    width: 20px;
+    height: 100%;
+    background: gold;
+}
+
+.lid-top::after {
+    content: '';
+    position: absolute;
+    width: 100%;
+    height: 20px;
+    background: gold;
+}
+
+.lid-side {
+    position: absolute;
+    height: 15px;
+    /* Lid thickness */
+    background: #c1121f;
+    border: 1px solid white;
+}
+
+.ls-front {
+    width: 110px;
+    transform: rotateX(-90deg) translateZ(55px);
+    bottom: 0;
+}
+
+.ls-back {
+    width: 110px;
+    transform: rotateX(90deg) translateZ(55px);
+    top: 0;
+}
+
+.ls-left {
+    width: 110px;
+    transform: rotateY(-90deg) translateZ(55px);
+    left: 0;
+}
+
+.ls-right {
+    width: 110px;
+    transform: rotateY(90deg) translateZ(55px);
+    right: 0;
+}
+
+
+/* CAROUSEL STYLES (Appears after box opens) */
+.carousel-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transform-style: preserve-3d;
+    /* transition: opacity 1s, visibility 1s; */
 }
 
 .carousel {
-    width: 100%;
-    height: 100%;
-    position: absolute;
+    position: relative;
+    width: 200px;
+    height: 300px;
     transform-style: preserve-3d;
     animation: spin 20s infinite linear;
 }
 
 .carousel:hover {
     animation-play-state: paused;
-    /* Pause on hover */
 }
 
 .carousel-item {
     position: absolute;
     width: 190px;
+    /* Reduced slightly */
     height: 280px;
-    left: 10px;
+    left: 5px;
     top: 10px;
     border: 5px solid white;
     box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
     border-radius: 10px;
     overflow: hidden;
     background: white;
-    /* Transform is handled inline for rotation */
+    /* Layout */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    /* Transition for the Fly Out effect */
+    transition: transform 1.5s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 1s ease;
+
+    /* Start hidden inside box (opacity handled in JS logic/classes) */
+    opacity: 0;
 }
 
 .carousel-img {
@@ -148,8 +320,7 @@
 
 .close-btn {
     position: absolute;
-    bottom: -60px;
-    /* Below the carousel */
+    bottom: -100px;
     left: 50%;
     transform: translateX(-50%);
     font-size: 2rem;
@@ -160,14 +331,12 @@
     width: 50px;
     height: 50px;
     cursor: pointer;
-    z-index: 30;
+    z-index: 100;
 }
 
 .valentine-title {
     position: absolute;
-    top: -100px;
-    /* Above the carousel */
-    width: 400px;
+    top: -150px;
     left: 50%;
     transform: translateX(-50%);
     color: #ff6b6b;
@@ -175,14 +344,38 @@
     text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8);
     text-align: center;
     z-index: 30;
-    background: rgba(255, 255, 255, 0.8);
-    padding: 10px;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 15px;
     border-radius: 20px;
+    width: 300px;
+    animation: fadeIn 2s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateX(-50%) translateY(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(-50%) translateY(0);
+    }
 }
 
 /* Mobile Adjustments */
 @media (max-width: 768px) {
-    .carousel-scene {
+    .vaishu-container {
+        perspective: 800px;
+        /* Adjust perspective for mobile */
+    }
+
+    .scene-container {
+        transform: scale(0.85);
+        /* Slightly scale down scene */
+    }
+
+    .carousel {
         width: 140px;
         height: 210px;
     }
@@ -193,8 +386,37 @@
     }
 
     .valentine-title {
-        width: 300px;
+        width: 90%;
+        max-width: 300px;
         font-size: 1.5rem;
-        top: -80px;
+        top: -120px;
+    }
+}
+
+@media (max-width: 480px) {
+    .scene-container {
+        transform: scale(0.75);
+        /* More aggressive scale for phones */
+    }
+
+    .carousel-item {
+        width: 110px;
+        height: 160px;
+    }
+
+    .carousel {
+        width: 120px;
+        height: 170px;
+    }
+
+    .valentine-title {
+        font-size: 1.2rem;
+        top: -100px;
+        width: 95%;
+    }
+
+    .magic-button {
+        padding: 15px 30px;
+        font-size: 1.2rem;
     }
 }

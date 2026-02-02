@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import './VaishuPage.css';
 
 import v1 from './assets/v1.jpeg';
@@ -13,42 +14,55 @@ import v7 from './assets/v7.jpeg';
 const photos = [v1, v2, v3, v4, v5, v6, v7];
 
 const VaishuPage = () => {
-    const [showCarousel, setShowCarousel] = useState(false);
+    // Stages: 'idle' | 'box-appear' | 'box-opening' | 'carousel'
+    const [stage, setStage] = useState('idle');
+    const [radius, setRadius] = useState(340);
 
-    // Radius of the carousel circle. 
-    // ~400px looks good for desktop, will scale down with media queries via CSS transform if needed
-    // But hardcoding radius in translateZ needs care.
-    // For 10 items width 200px (approx), radius ~ 340px.
-    // We'll use a dynamic radius style check or just a safe fixed one.
-    const radius = 340;
-    // For mobile, we might need to reduce this. Let's handle it with a simple media query check or CSS variable.
-    // Actually, let's use a CSS variable for radius if possible, or just a conservative value.
-    // 340px radius on a 320px wide phone screen might clip.
-    // We'll trust the 3D transform to handle depth, but the user might need to zoom out.
-    // We'll add a 'scale' transform to the carousel container on mobile in CSS.
+    // Calculate dynamic radius
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth < 480) {
+                setRadius(150); // Very small screens
+            } else if (window.innerWidth < 768) {
+                setRadius(210); // Tablets / Large phones
+            } else {
+                setRadius(340); // Desktop
+            }
+        };
+
+        handleResize(); // Set initial
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     const handleButtonClick = () => {
-        setShowCarousel(true);
+        setStage('box-appear');
+        // Sequence the animations
+        setTimeout(() => {
+            setStage('box-opening');
+            setTimeout(() => {
+                setStage('carousel');
+            }, 1000); // Wait for open animation
+        }, 1500); // Wait for box to appear
     };
 
     const handleClose = () => {
-        setShowCarousel(false);
+        setStage('idle');
     };
 
     const renderHearts = () => {
         const hearts = [];
-        for (let i = 0; i < 20; i++) {
+        for (let i = 0; i < 30; i++) {
             const style = {
                 left: `${Math.random() * 100}%`,
                 animationDelay: `${Math.random() * 5}s`,
-                fontSize: `${Math.random() * 2 + 1}rem`
+                fontSize: `${Math.random() * 2 + 0.5}rem`
             };
             hearts.push(<div key={i} className="heart" style={style}>❤️</div>);
         }
         return hearts;
     };
 
-    // Calculate angle per item dynamically
     const anglePerItem = 360 / photos.length;
 
     return (
@@ -57,31 +71,68 @@ const VaishuPage = () => {
                 {renderHearts()}
             </div>
 
-            {!showCarousel && (
+            {/* Stage 1: Button */}
+            {stage === 'idle' && (
                 <button className="magic-button" onClick={handleButtonClick}>
-                    Click Vaishu Here
+                    Click Here Vaishu 🎁
                 </button>
             )}
 
-            {showCarousel && (
-                <div className={`carousel-scene ${showCarousel ? 'visible' : ''}`}>
-                    <h1 className="valentine-title">MISS YOU 💖</h1>
+            {/* Stage 2 & 3: Gift Box Scene */}
+            {stage !== 'idle' && (
+                <div className="scene-container">
 
-                    <div className="carousel">
-                        {photos.map((src, index) => (
-                            <div
-                                className="carousel-item"
-                                key={index}
-                                style={{
-                                    transform: `rotateY(${index * anglePerItem}deg) translateZ(${radius}px)`
-                                }}
-                            >
-                                <img src={src} alt={`Vaishu ${index}`} className="carousel-img" />
+                    {/* The Gift Box */}
+                    {stage !== 'carousel' && (
+                        <div className={`gift-box ${stage === 'box-opening' ? 'opening' : ''}`}>
+                            <div className="box-face face-front"></div>
+                            <div className="box-face face-back"></div>
+                            <div className="box-face face-right"></div>
+                            <div className="box-face face-left"></div>
+                            <div className="box-face face-bottom"></div>
+
+                            {/* Lid */}
+                            <div className={`box-lid ${stage === 'box-opening' ? 'open' : ''}`}>
+                                <div className="lid-top"></div>
+                                <div className="lid-side ls-front"></div>
+                                <div className="lid-side ls-back"></div>
+                                <div className="lid-side ls-left"></div>
+                                <div className="lid-side ls-right"></div>
                             </div>
-                        ))}
+                        </div>
+                    )}
+
+                    {/* Stage 4: Carousel (Images start inside box then fly out) */}
+                    <div className="carousel-container" style={{
+                        opacity: stage === 'carousel' ? 1 : 0,
+                        pointerEvents: stage === 'carousel' ? 'auto' : 'none',
+                        transition: 'opacity 1s ease'
+                    }}>
+                        {stage === 'carousel' && (
+                            <>
+                                <h1 className="valentine-title">MISS YOU 💖</h1>
+                                <div className="carousel">
+                                    {photos.map((src, index) => (
+                                        <div
+                                            className="carousel-item"
+                                            key={index}
+                                            style={{
+                                                // When 'carousel' stage is active, apply the transform.
+                                                // Before that (implicitly), they are at 0,0,0 (inside box).
+                                                // We use a CSS transition to animate smoothly to this position.
+                                                transform: `rotateY(${index * anglePerItem}deg) translateZ(${radius}px)`,
+                                                opacity: 1
+                                            }}
+                                        >
+                                            <img src={src} alt={`Vaishu ${index}`} className="carousel-img" />
+                                        </div>
+                                    ))}
+                                </div>
+                                <button className="close-btn" onClick={handleClose}>×</button>
+                            </>
+                        )}
                     </div>
 
-                    <button className="close-btn" onClick={handleClose}>×</button>
                 </div>
             )}
         </div>
