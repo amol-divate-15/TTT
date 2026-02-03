@@ -1,5 +1,4 @@
-
-import React, { useState, useEffect } from 'react';
+﻿import { useState, useEffect } from 'react';
 import './VaishuPage.css';
 
 import v1 from './assets/v1.jpeg';
@@ -10,133 +9,163 @@ import v5 from './assets/v5.jpeg';
 import v6 from './assets/v6.jpeg';
 import v7 from './assets/v7.jpeg';
 
-// 7 Local Photos
 const photos = [v1, v2, v3, v4, v5, v6, v7];
 
 const VaishuPage = () => {
-    // Stages: 'idle' | 'box-appear' | 'box-opening' | 'carousel'
-    const [stage, setStage] = useState('idle');
-    const [radius, setRadius] = useState(340);
+  const [stage, setStage] = useState('idle');
+  const [radius, setRadius] = useState(340);
 
-    // Calculate dynamic radius
-    useEffect(() => {
-        const handleResize = () => {
-            if (window.innerWidth < 480) {
-                setRadius(150); // Very small screens
-            } else if (window.innerWidth < 768) {
-                setRadius(210); // Tablets / Large phones
-            } else {
-                setRadius(340); // Desktop
-            }
-        };
-
-        handleResize(); // Set initial
-        window.addEventListener('resize', handleResize);
-        return () => window.removeEventListener('resize', handleResize);
-    }, []);
-
-    const handleButtonClick = () => {
-        setStage('box-appear');
-        // Sequence the animations
-        setTimeout(() => {
-            setStage('box-opening');
-            setTimeout(() => {
-                setStage('carousel');
-            }, 1000); // Wait for open animation
-        }, 1500); // Wait for box to appear
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 480) {
+        setRadius(150);
+      } else if (window.innerWidth < 768) {
+        setRadius(210);
+      } else {
+        setRadius(340);
+      }
     };
 
-    const handleClose = () => {
-        setStage('idle');
-    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
-    const renderHearts = () => {
-        const hearts = [];
-        for (let i = 0; i < 30; i++) {
-            const style = {
-                left: `${Math.random() * 100}%`,
-                animationDelay: `${Math.random() * 5}s`,
-                fontSize: `${Math.random() * 2 + 0.5}rem`
-            };
-            hearts.push(<div key={i} className="heart" style={style}>❤️</div>);
-        }
-        return hearts;
-    };
+  const handleButtonClick = () => {
+    setStage('box-appear');
 
-    const anglePerItem = 360 / photos.length;
+    setTimeout(() => {
+      setStage('box-opening');
+      setTimeout(() => {
+        setStage('carousel');
+      }, 1000);
+    }, 1500);
+  };
 
-    return (
-        <div className="vaishu-container">
-            <div className="bg-hearts">
-                {renderHearts()}
+  const handleClose = () => {
+    setStage('idle');
+  };
+
+  const renderParticles = () => {
+    const particles = [];
+    for (let i = 0; i < 26; i++) {
+      const size = Math.random() * 10 + 6;
+      const style = {
+        left: `${Math.random() * 100}%`,
+        top: `${Math.random() * 100}%`,
+        width: `${size}px`,
+        height: `${size}px`,
+        animationDelay: `${Math.random() * 8}s`,
+        animationDuration: `${12 + Math.random() * 14}s`,
+        opacity: (Math.random() * 0.5 + 0.15).toFixed(2)
+      };
+      particles.push(<span key={i} className="particle" style={style} />);
+    }
+    return particles;
+  };
+
+  const anglePerItem = 360 / photos.length;
+
+  return (
+    <div className="vaishu-root">
+      <div className="ambient">{renderParticles()}</div>
+
+      <header className="site-header">
+        <div className="logo">Vaishu</div>
+        <div className="pill">Memory Capsule</div>
+      </header>
+
+      <main className="content">
+        <section className="hero">
+          <p className="eyebrow">Hello Ji</p>
+          <h1>Moments in Motion</h1>
+          <p className="lead">
+            A small gallery of snapshots and experiments. Tap the capsule to
+            reveal the 3D reel.
+          </p>
+          {stage === 'idle' && (
+            <button className="primary-cta" onClick={handleButtonClick}>
+              Click here vaishu
+            </button>
+          )}
+          <p className="helper">Hover the reel to pause the spin.</p>
+        </section>
+
+        <section className="stage">
+          {stage === 'idle' && (
+            <div className="idle-card">
+              <div className="idle-label">Preview deck</div>
+              <div className="idle-sub">Waiting for the reveal</div>
             </div>
+          )}
 
-            {/* Stage 1: Button */}
-            {stage === 'idle' && (
-                <button className="magic-button" onClick={handleButtonClick}>
-                    Click Here Vaishu 🎁
-                </button>
-            )}
+          {stage !== 'idle' && (
+            <div className="scene-container">
+              {stage !== 'carousel' && (
+                <div
+                  className={`gift-box ${stage === 'box-opening' ? 'opening' : ''}`}
+                >
+                  <div className="box-face face-front"></div>
+                  <div className="box-face face-back"></div>
+                  <div className="box-face face-right"></div>
+                  <div className="box-face face-left"></div>
+                  <div className="box-face face-bottom"></div>
 
-            {/* Stage 2 & 3: Gift Box Scene */}
-            {stage !== 'idle' && (
-                <div className="scene-container">
-
-                    {/* The Gift Box */}
-                    {stage !== 'carousel' && (
-                        <div className={`gift-box ${stage === 'box-opening' ? 'opening' : ''}`}>
-                            <div className="box-face face-front"></div>
-                            <div className="box-face face-back"></div>
-                            <div className="box-face face-right"></div>
-                            <div className="box-face face-left"></div>
-                            <div className="box-face face-bottom"></div>
-
-                            {/* Lid */}
-                            <div className={`box-lid ${stage === 'box-opening' ? 'open' : ''}`}>
-                                <div className="lid-top"></div>
-                                <div className="lid-side ls-front"></div>
-                                <div className="lid-side ls-back"></div>
-                                <div className="lid-side ls-left"></div>
-                                <div className="lid-side ls-right"></div>
-                            </div>
-                        </div>
-                    )}
-
-                    {/* Stage 4: Carousel (Images start inside box then fly out) */}
-                    <div className="carousel-container" style={{
-                        opacity: stage === 'carousel' ? 1 : 0,
-                        pointerEvents: stage === 'carousel' ? 'auto' : 'none',
-                        transition: 'opacity 1s ease'
-                    }}>
-                        {stage === 'carousel' && (
-                            <>
-                                <h1 className="valentine-title">MISS YOU 💖, Sorry For evrything</h1>
-                                <div className="carousel">
-                                    {photos.map((src, index) => (
-                                        <div
-                                            className="carousel-item"
-                                            key={index}
-                                            style={{
-                                                // When 'carousel' stage is active, apply the transform.
-                                                // Before that (implicitly), they are at 0,0,0 (inside box).
-                                                // We use a CSS transition to animate smoothly to this position.
-                                                transform: `rotateY(${index * anglePerItem}deg) translateZ(${radius}px)`,
-                                                opacity: 1
-                                            }}
-                                        >
-                                            <img src={src} alt={`Vaishu ${index}`} className="carousel-img" />
-                                        </div>
-                                    ))}
-                                </div>
-                                <button className="close-btn" onClick={handleClose}>×</button>
-                            </>
-                        )}
-                    </div>
-
+                  <div className={`box-lid ${stage === 'box-opening' ? 'open' : ''}`}>
+                    <div className="lid-top"></div>
+                    <div className="lid-side ls-front"></div>
+                    <div className="lid-side ls-back"></div>
+                    <div className="lid-side ls-left"></div>
+                    <div className="lid-side ls-right"></div>
+                  </div>
                 </div>
-            )}
-        </div>
-    );
+              )}
+
+              <div
+                className="carousel-container"
+                style={{
+                  opacity: stage === 'carousel' ? 1 : 0,
+                  pointerEvents: stage === 'carousel' ? 'auto' : 'none',
+                  transition: 'opacity 1s ease'
+                }}
+              >
+                {stage === 'carousel' && (
+                  <>
+                    <h2 className="reveal-title">Vault Open</h2>
+                    <div className="carousel">
+                      {photos.map((src, index) => (
+                        <div
+                          className="carousel-item"
+                          key={index}
+                          style={{
+                            transform: `rotateY(${index * anglePerItem}deg) translateZ(${radius}px)`,
+                            opacity: 1
+                          }}
+                        >
+                          <img
+                            src={src}
+                            alt={`Shot ${index + 1}`}
+                            className="carousel-img"
+                          />
+                        </div>
+                      ))}
+                    </div>
+                    <button className="close-btn" onClick={handleClose}>
+                      Close
+                    </button>
+                  </>
+                )}
+              </div>
+            </div>
+          )}
+        </section>
+      </main>
+
+      <footer className="site-footer">
+        Crafted with care. Tap again to reset.
+      </footer>
+    </div>
+  );
 };
 
 export default VaishuPage;
